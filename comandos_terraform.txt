@@ -1,0 +1,79 @@
+#Iniciar terraform
+terraform init
+
+#Ver el plan del manifest
+terraform plan
+
+#Aplicar el main.tf
+terraform apply
+terraform apply --auto-aprove
+
+#Destruir los cambios
+terraform destroy
+
+#Acceder a la consola de terraform
+terraform console
+
+#Ver el estado de los recursos
+terraform state list
+terraform show
+terraform show | grep ip
+
+#muestra la salida de los outputs
+terraform output
+
+terraform fmt --diff
+
+#Crear un archivo para un plan, para poder automatizarlo
+terraform plan -out=plan1
+terraform apply plan1
+
+##JOIN
+terraform console
+[root@localhost Terraform-docker]# terraform console
+> join("-", ["El","join","tiene",2+2,"guiones"])
+"El-join-tiene-4-guiones"
+> join(":", [docker_container.nodered_container.ip_address, docker_container.nodered_container.ports[0].external])
+"172.17.0.2:1880"
+
+#Random resource
+resource "random_string" "random" {
+	length = 4
+	special = false
+	upper = false
+}
+
+#Multiple resources and COUNT
+resource "random_string" "random" {
+    count = 3
+	length = 4
+	special = false
+	upper = false
+}
+
+#Splat expression
+[root@localhost Terraform-docker]# terraform console
+> docker_container.nodered_container[*].name
+[
+  "nodered-8tdy",
+  "nodered-6n6m",
+  "nodered-98gx",
+]
+
+#"for" loops
+[for i in docker_container.nodered_container[*]: join(".", [i.ip_address],i.ports[*]["external"])]
+
+#Terraform import
+docker inspect --format="{{.ID}}" nodered-6n6m
+terraform import docker_container.nodered_container2 $(docker inspect --format="{{.ID}}" nodered-6n6m)
+
+#Terraform refresh and state rm
+terraform refresh
+terraform refresh -target random_string.random --> refresca solo el recurso indicado
+
+
+
+
+
+
+
