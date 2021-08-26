@@ -6,7 +6,7 @@ terraform plan
 
 #Aplicar el main.tf
 terraform apply
-terraform apply --auto-aprove
+terraform apply -auto-approve
 
 #Destruir los cambios
 terraform destroy
@@ -70,6 +70,46 @@ terraform import docker_container.nodered_container2 $(docker inspect --format="
 #Terraform refresh and state rm
 terraform refresh
 terraform refresh -target random_string.random --> refresca solo el recurso indicado
+terraform state rm random_string.random[1] ---> elimina un recurso dentro de randoom
+
+#variables
+terraform plan -var ext_port=1880
+export TF_VAR_ext_port=1880
+unset TF_VAR_ext_port
+
+variable "int_port" {
+    type = number
+    default = 1880
+
+    validation {
+        condition = var.int_port <= 65535 && var.int_port > 0
+        error_message = "The internal port range between 0 - 65535?"
+    }
+}
+
+
+#Variables and Outputs
+creamos los archivos outputs.tf y vars.tf y copiamos las variables y outputs respectivamente
+
+#Sensitive Variables and .tfvars
+creamos el fichero terraofrm.tfvars i ponemos el valor de la variable
+ext_ports = 1880
+
+#Variable definition precedence
+Creamos el fichero west.tfvars
+terraform plan --var-file=west.tfvars 
+
+#Hiding Sensitive Variable from CLI
+oculta la información de la variable
+se debe poner tanto en la variable como en el recurso que utilize la variable
+sensitive = true
+
+#The Bind Mount and Local-Exec
+resource "null_resource" "dockervol" {
+	provisioner "local-exec" {
+		command = "mkdir noderedvol/"
+	}
+}
 
 
 
